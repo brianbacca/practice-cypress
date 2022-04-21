@@ -6,7 +6,9 @@ const {
   getProducts,
   getProductId,
   updateProductID,
+  deleteProductID,
 } = require('../src/data/product-data');
+const { buildProduct } = require('../src/__fixture__/product-fixture');
 
 jest.mock('../src/data/product-data.js');
 
@@ -15,32 +17,22 @@ afterEach(() => {
   getProducts.mockClear();
   getProductId.mockClear();
   updateProductID.mockClear();
+  deleteProductID.mockClear();
 });
 
 describe('products unit test', () => {
   test('POST /products', async () => {
-    saveProduct.mockReturnValueOnce(
-      Promise.resolve({
-        name: 'fake',
-        size: 1,
-        description: 'test',
-        _id: 'abc',
-      })
-    );
+    const product = buildProduct();
+    saveProduct.mockReturnValueOnce(Promise.resolve(product));
     const response = await request(app)
       .post('/products')
       .send({
-        name: 'fake',
-        size: 1,
-        description: 'test',
+        name: product.name,
+        size: product.size,
+        description: product.description,
       })
       .expect(201);
-    expect(response.body).toEqual({
-      name: 'fake',
-      size: 1,
-      description: 'test',
-      _id: 'abc',
-    });
+    expect(response.body).toEqual(product);
   });
 
   test('GET /products', async () => {
@@ -50,23 +42,14 @@ describe('products unit test', () => {
   });
 
   test('GET /products/:id', async () => {
-    getProductId.mockReturnValueOnce({
-      name: 'fake',
-      size: 1,
-      description: 'test',
-      _id: 'abc',
-    });
+    const product = buildProduct();
+    getProductId.mockReturnValueOnce(product);
     const response = await request(app).get('/products/abc').expect(200);
     expect(getProductId).toHaveBeenCalledWith('abc');
-    expect(response.body).toEqual({
-      name: 'fake',
-      size: 1,
-      description: 'test',
-      _id: 'abc',
-    });
+    expect(response.body).toEqual(product);
   });
 
-  test.only('PUT /products/:id', async () => {
+  test('PUT /products/:id', async () => {
     updateProductID.mockReturnValueOnce(
       Promise.resolve({
         name: 'update',
@@ -97,5 +80,13 @@ describe('products unit test', () => {
       description: 'pass',
       _id: 'abc',
     });
+  });
+
+  test('DELETE /products/:id', async () => {
+    const product = buildProduct();
+    deleteProductID.mockReturnValueOnce(product);
+    const response = await request(app).delete('/products/abc').expect(200);
+    expect(deleteProductID).toHaveBeenCalledWith({ id: 'abc' });
+    expect(response.body).toEqual(product);
   });
 });
