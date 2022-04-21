@@ -1,31 +1,31 @@
 {
-  "name": "backend-testing",
+  "name": "backend-testing-2",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start:local": "nodemon ./src/server.js",
-    "test": "jest",
+    "test": "jest --watch",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.+(js|md|)\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mongoose": "^6.3.0"
+  },
   "devDependencies": {
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^26.1.4",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.5.1",
+    "morgan": "^1.10.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.6.2",
     "supertest": "^6.2.2"
-  },
-  "dependencies": {
-    "dotenv": "^16.0.0",
-    "express": "^4.17.3",
-    "pino": "^7.10.0",
-    "pino-http": "^6.6.0"
   }
 }
