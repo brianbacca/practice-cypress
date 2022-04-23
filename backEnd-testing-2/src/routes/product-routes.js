@@ -8,14 +8,23 @@ const {
   deleteProductIdController,
 } = require('../controllers/product-controllers');
 
-routes.post('/products', saveProductController);
+const {
+  validateRequiredValues,
+  validateId,
+} = require('../middlewares/product-middlewares');
+
+routes.post('/products', validateRequiredValues, saveProductController);
 
 routes.get('/products', getProductsController);
 
-routes.get('/products/:id', getProductIdController);
+routes.get('/products/:id', validateId, getProductIdController);
 
-routes.put('/products/:id', updateProductIdController);
+routes.put('/products/:id', [
+  validateId,
+  validateRequiredValues,
+  updateProductIdController,
+]);
 
-routes.delete('/products/:id', deleteProductIdController);
+routes.delete('/products/:id', validateId, deleteProductIdController);
 
 module.exports.routes = routes;

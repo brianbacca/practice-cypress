@@ -44,8 +44,10 @@ describe('products unit test', () => {
   test('GET /products/:id', async () => {
     const product = buildProduct();
     getProductId.mockReturnValueOnce(product);
-    const response = await request(app).get('/products/abc').expect(200);
-    expect(getProductId).toHaveBeenCalledWith('abc');
+    const response = await request(app)
+      .get(`/products/${product._id}`)
+      .expect(200);
+    expect(getProductId).toHaveBeenCalledWith(product._id);
     expect(response.body).toEqual(product);
   });
 
@@ -55,11 +57,11 @@ describe('products unit test', () => {
         name: 'update',
         size: 10,
         description: 'pass',
-        _id: 'abc',
+        _id: '6261995ef32543a6eaf9a6a8',
       })
     );
     const response = await request(app)
-      .put('/products/abc')
+      .put('/products/6261995ef32543a6eaf9a6a8')
       .send({
         name: 'update',
         size: 10,
@@ -67,7 +69,7 @@ describe('products unit test', () => {
       })
       .expect(201);
     expect(updateProductID).toHaveBeenCalledWith(
-      { id: 'abc' },
+      { id: '6261995ef32543a6eaf9a6a8' },
       {
         name: 'update',
         size: 10,
@@ -78,15 +80,77 @@ describe('products unit test', () => {
       name: 'update',
       size: 10,
       description: 'pass',
-      _id: 'abc',
+      _id: '6261995ef32543a6eaf9a6a8',
     });
   });
 
   test('DELETE /products/:id', async () => {
     const product = buildProduct();
     deleteProductID.mockReturnValueOnce(product);
-    const response = await request(app).delete('/products/abc').expect(200);
-    expect(deleteProductID).toHaveBeenCalledWith({ id: 'abc' });
+    const response = await request(app)
+      .delete(`/products/${product._id}`)
+      .expect(200);
+    expect(deleteProductID).toHaveBeenCalledWith({ id: product._id });
     expect(response.body).toEqual(product);
+  });
+
+  test('POST /products validations', async () => {
+    const response = await request(app).post('/products').expect(400);
+    expect(response.body).toEqual({
+      error: 'name, size, and description are required',
+    });
+  });
+
+  test('GET /products/:id validation of the id', async () => {
+    const invalidId = 'cba';
+    const response = await request(app)
+      .get(`/products/${invalidId}`)
+      .expect(400);
+
+    expect(response.body).toEqual({
+      error: `the ${invalidId} is not a valid id`,
+    });
+  });
+
+  test('PUT /products/:id valdiate id', async () => {
+    const invalidId = 'cba';
+    const response = await request(app)
+      .put(`/products/${invalidId}`)
+      .expect(400);
+    expect(response.body).toEqual({
+      error: `the ${invalidId} is not a valid id`,
+    });
+  });
+
+  test('PUT /products/:id valdiate required value', async () => {
+    const product = buildProduct();
+
+    const response = await request(app)
+      .put(`/products/${product._id}`)
+      .expect(400);
+    expect(response.body).toEqual({
+      error: 'name, size, and description are required',
+    });
+  });
+
+  test('DELETE /products/:id validate id', async () => {
+    const invalidId = 'cba';
+    const response = await request(app)
+      .delete(`/products/${invalidId}`)
+      .expect(400);
+    expect(response.body).toEqual({
+      error: `the ${invalidId} is not a valid id`,
+    });
+  });
+
+  test('GET /products error handler', async () => {
+    getProducts.mockImplementation(() => {
+      throw new Error('test');
+    });
+    const response = await request(app)
+      .get('/products')
+      .set('Authorization', 'Bearer myToken')
+      .expect(500);
+    expect(response.body).toEqual({ message: 'something is wrong' });
   });
 });
