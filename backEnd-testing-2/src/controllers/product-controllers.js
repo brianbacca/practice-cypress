@@ -13,13 +13,18 @@ module.exports.saveProductController = async (req, res) => {
   return res.status(201).send(productStored);
 };
 
-module.exports.getProductsController = async (req, res) => {
-  const products = await getProducts();
-  return res.status(200).send(products);
+module.exports.getProductsController = async (req, res, next) => {
+  try {
+    const products = await getProducts();
+    return res.status(200).send(products);
+  } catch (e) {
+    next(e);
+  }
 };
 
 module.exports.getProductIdController = async (req, res) => {
   const { id } = req.params;
+
   const product = await getProductId(id);
   return res.status(200).json(product);
 };
