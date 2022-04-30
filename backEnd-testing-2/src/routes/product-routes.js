@@ -8,6 +8,7 @@ const {
   deleteProductIdController,
 } = require('../controllers/product-controllers');
 
+const { isAuthHandler } = require('../middlewares/auth-middleware');
 const {
   validateRequiredValues,
   validateId,
@@ -15,7 +16,7 @@ const {
 
 routes.post('/products', validateRequiredValues, saveProductController);
 
-routes.get('/products', getProductsController);
+routes.get('/products', [isAuthHandler], getProductsController);
 
 routes.get('/products/:id', validateId, getProductIdController);
 

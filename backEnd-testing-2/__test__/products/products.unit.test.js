@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../src/app');
+const app = require('../../src/app');
 
 const {
   saveProduct,
@@ -7,10 +7,11 @@ const {
   getProductId,
   updateProductID,
   deleteProductID,
-} = require('../src/data/product-data');
-const { buildProduct } = require('../src/__fixture__/product-fixture');
-
-jest.mock('../src/data/product-data.js');
+} = require('../../src/data/product-data');
+const { buildProduct } = require('../../src/__fixture__/product-fixture');
+const { verify } = require('../../src/utils/jwt.js');
+jest.mock('../../src/data/product-data.js');
+jest.mock('../../src/utils/jwt.js');
 
 afterEach(() => {
   saveProduct.mockClear();
@@ -37,7 +38,11 @@ describe('products unit test', () => {
 
   test('GET /products', async () => {
     getProducts.mockReturnValueOnce({});
-    const response = await request(app).get('/products').expect(200);
+    verify.mockReturnValueOnce({});
+    const response = await request(app)
+      .get('/products')
+      .set('Authorization', 'Bearer myToken')
+      .expect(200);
     expect(response.body).toEqual({});
   });
 

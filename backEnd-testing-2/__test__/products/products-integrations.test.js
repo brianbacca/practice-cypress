@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
-const { connectDb, createUri, closeDb } = require('../src/db/mongo');
+const { connectDb, createUri, closeDb } = require('../../src/db/mongo');
 const request = require('supertest');
-const app = require('../src/app');
-const { buildProduct } = require('../src/__fixture__/product-fixture');
-const { saveProduct } = require('../src/data/product-data');
+const app = require('../../src/server');
+const { buildProduct } = require('../../src/__fixture__/product-fixture');
+const { saveProduct } = require('../../src/data/product-data');
+const { sign } = require('../../src/utils/jwt');
 
 beforeAll(async () => {
   const uri = await createUri();
@@ -37,7 +38,11 @@ describe('Products Integration Test', () => {
   });
 
   test('GET /products empty values', async () => {
-    const response = await request(app).get('/products').expect(200);
+    const token = sign({ email: 'brian@gmail.com' });
+    const response = await request(app)
+      .get('/products')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
     expect(response.body).toEqual([]);
   });
 
@@ -48,7 +53,12 @@ describe('Products Integration Test', () => {
 
     const { name, size, description, _id, __v } = productStored;
 
-    const responseGet = await request(app).get('/products').expect(200);
+    const token = sign({ email: 'brian@gmail.com' });
+
+    const responseGet = await request(app)
+      .get('/products')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
     expect(responseGet.body).toEqual([
       { name, size, description, _id: String(_id), __v },
     ]);
